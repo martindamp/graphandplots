@@ -24,7 +24,7 @@ def get_phyllotaxis_coords(n, angle_degrees, spread, center):
 def generate_dynamic_filename(args, parser) -> str:
     """Appends non-default arguments to the filename for tracking."""
     base_name, extension = os.path.splitext(args.output)
-    suffix = "_portrait" # Mark as portrait for Reels
+    suffix = "_phyllotaxis" # Mark as a phyllotaxis
     for action in parser._actions:
         arg_name = action.dest
         if arg_name in ['output', 'run_tests', 'fps', 'duration', 'help']:
