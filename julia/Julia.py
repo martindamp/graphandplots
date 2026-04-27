@@ -20,6 +20,11 @@ def complex_sqr(z):
 @ti.kernel
 def compute_julia_taichi(zoom: float, c_real: float, c_imag: float, max_iter: int, width: int, height: int, num_colors: int):
     aspect_ratio = height / width
+    
+    # Smooth coloring mathematically requires a much larger escape radius 
+    # to accurately calculate the continuous potential trajectory.
+    escape_radius_sqr = 1024.0 
+    
     for i, j in pixels:
         x = ((i / width) * 2.0 - 1.0) * zoom
         y = ((j / height) * 2.0 * aspect_ratio - aspect_ratio) * zoom
@@ -28,16 +33,40 @@ def compute_julia_taichi(zoom: float, c_real: float, c_imag: float, max_iter: in
         c = ti.Vector([c_real, c_imag])
 
         iterations = 0
-        while z.norm_sqr() <= 4.0 and iterations < max_iter:
+        while z.norm_sqr() <= escape_radius_sqr and iterations < max_iter:
             z = complex_sqr(z) + c
             iterations += 1
 
         if iterations == max_iter:
             pixels[i, j] = ti.Vector([0.0, 0.0, 0.0])
         else:
-            color_idx = iterations % num_colors
-            pixels[i, j] = palette_field[color_idx]
-
+            # --- INTELLIGENT COLORING ALGORITHM ---
+            
+            # 1. Calculate Continuous Fractional Iteration
+            z_norm = ti.sqrt(z.norm_sqr())
+            log_z = ti.math.log(z_norm)
+            smooth_iter = iterations + 1.0 - ti.math.log(log_z) / ti.math.log(2.0)
+            
+            # 2. Apply Logarithmic Scaling (Stretches colors across large empty spaces)
+            # We add 1.0 to prevent calculating log(0)
+            log_iter = ti.math.log(smooth_iter + 1.0)
+            
+            # 3. Map to palette (Multiplier controls how fast the gradient cycles)
+            color_speed = 25.0 
+            idx = (log_iter * color_speed) % num_colors
+            
+            # 4. Smooth Hardware Interpolation
+            # Instead of snapping to one color, we blend the pixels between two colors
+            idx_floor = ti.cast(ti.floor(idx), ti.i32)
+            idx_ceil = (idx_floor + 1) % num_colors
+            frac = idx - ti.cast(idx_floor, ti.f32)
+            
+            color1 = palette_field[idx_floor]
+            color2 = palette_field[idx_ceil]
+            
+            # Linear blend
+            pixels[i, j] = color1 * (1.0 - frac) + color2 * frac
+            
 def load_palette_to_hardware(name, num_colors):
     if num_colors > MAX_COLORS:
         raise ValueError(f"Too many colors requested. Max is {MAX_COLORS}")
@@ -132,8 +161,8 @@ if __name__ == '__main__':
             
             sign = "+" if c.imag >= 0 else "-"
             text = f"C = {c.real:.5f} {sign} {abs(c.imag):.5f}i"
-            cv2.putText(img_cpu, text, (20, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,0,0), 4, cv2.LINE_AA)
-            cv2.putText(img_cpu, text, (20, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2, cv2.LINE_AA)
+            cv2.putText(img_cpu, text, (50, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,0,0), 4, cv2.LINE_AA)
+            cv2.putText(img_cpu, text, (50, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2, cv2.LINE_AA)
                         
             out.write(img_cpu)
             
