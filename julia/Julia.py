@@ -107,7 +107,7 @@ if __name__ == '__main__':
         
         load_palette_to_hardware(args.palette, args.colors)
         
-        output_filename = f'julia_{args.palette}_{args.real}_{args.imag}_{args.colors}c_{args.fps}fps.mp4'
+        output_filename = f'julia_{args.palette}_{args.colors}c_{args.fps}fps_{args.iter}iter_{args.duration}s_{args.real}_{args.imag}.mp4'
         
         print(f"\n--- RENDER CONFIGURATION ---")
         print(f"Dimensions: {width}x{height} (Portrait)")
@@ -133,7 +133,7 @@ if __name__ == '__main__':
             sign = "+" if c.imag >= 0 else "-"
             text = f"C = {c.real:.5f} {sign} {abs(c.imag):.5f}i"
             cv2.putText(img_cpu, text, (20, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,0,0), 4, cv2.LINE_AA)
-            cv2.putText(img_cpu, text, (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2, cv2.LINE_AA)
+            cv2.putText(img_cpu, text, (20, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2, cv2.LINE_AA)
                         
             out.write(img_cpu)
             
