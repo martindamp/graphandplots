@@ -1,0 +1,13 @@
+{
+  "name": "aircraft-hijackings-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Renders aircraft_hijackings.mp4 (1080x1920, Instagram-ready) from render.html",
+  "scripts": {
+    "render": "node make_video.js",
+    "postinstall-hint": "npx playwright install chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.63.0"
+  }
+}
