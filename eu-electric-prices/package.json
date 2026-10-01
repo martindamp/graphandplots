@@ -1,0 +1,12 @@
+{
+  "name": "european-power-prices-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Renders render.html to a 1080x1920 MP4 (European wholesale power prices 2015-2026)",
+  "scripts": {
+    "render": "node make_video.js"
+  },
+  "dependencies": {
+    "playwright": "^1.48.0"
+  }
+}
