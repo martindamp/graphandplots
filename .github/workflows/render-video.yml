@@ -8,13 +8,7 @@ name: Render video
 # ved push til main, eller ved push af et tag som v1.0 (vedhæfter MP4'en til en Release).
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]
-    tags: [ 'v*' ]
-    paths:
-      - 'eu-electric-prices/**'
-      - '.github/workflows/render-video.yml'
-
+  
 permissions:
   contents: write   # nødvendigt for at vedhæfte filen til en Release ved tag-push
 
