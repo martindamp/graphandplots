@@ -8,11 +8,7 @@ name: Render hijackings video
 # ved push til main, eller ved push af et tag (vedhæfter MP4'en til en Release).
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]
-    paths: [ 'aircraft-hijackings/**' ]
-    tags: [ '*' ]
-
+  
 permissions:
   contents: write   # nødvendigt for at vedhæfte filen til en Release ved tag-push
 
