@@ -1,0 +1,58 @@
+name: Render Kessler
+
+# Koden ligger i undermappen kessler-syndrome/.
+# Selve workflow-filen SKAL ligge i repo-roden under .github/workflows/ —
+# GitHub Actions kører ikke workflows fra en undermappe.
+#
+# Kør manuelt (Actions-fanen → Render Kessler → Run workflow),
+# eller ved push af et tag som v1.0 (vedhæfter MP4'en til en Release).
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write   # nødvendigt for at vedhæfte filen til en Release ved tag-push
+
+defaults:
+  run:
+    working-directory: kessler-syndrome
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Chromium (Playwright)
+        run: npx playwright install --with-deps chromium
+
+      - name: Render MP4
+        run: node make_video.js
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kessler_syndrome
+          path: kessler-syndrome/kessler_syndrome.mp4
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Attach to Release (kun ved tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: kessler-syndrome/kessler_syndrome.mp4
