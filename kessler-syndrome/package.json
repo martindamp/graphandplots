@@ -1,0 +1,12 @@
+{
+  "name": "kessler-syndrome-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Renders render.html to a 1080x1920 MP4 illustrating the Kessler syndrome (orbital collision cascade)",
+  "scripts": {
+    "render": "node make_video.js"
+  },
+  "dependencies": {
+    "playwright": "^1.48.0"
+  }
+}
