@@ -1,0 +1,4 @@
+matryoshka.mp4
+*.partial.mp4
+preview/
+__pycache__/
