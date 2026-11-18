@@ -1,0 +1,8 @@
+{
+  "title": "MATRYOSHKA",
+  "subtitle": "One inside the other",
+  "caption": "Each one holds the next.",
+  "labels": ["", "", "", "", ""],
+  "num_dolls": 5,
+  "output": "matryoshka.mp4"
+}

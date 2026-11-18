@@ -1,0 +1,52 @@
+name: Render Matryoshka
+
+# Koden ligger i undermappen matryoshka/.
+# Kør manuelt (Actions-fanen → Render Matryoshka → Run workflow),
+# eller ved push af et tag som v1.0 (vedhæfter MP4'en til en Release).
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write   # nødvendigt for at vedhæfte filen til en Release ved tag-push
+
+defaults:
+  run:
+    working-directory: matryoshka
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install ffmpeg + fonts
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-dejavu-core
+
+      - name: Install dependencies
+        run: pip install pillow numpy
+
+      - name: Render MP4
+        run: python matryoshka.py render
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: matryoshka
+          path: matryoshka/matryoshka.mp4
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Attach to Release (kun ved tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: matryoshka/matryoshka.mp4
